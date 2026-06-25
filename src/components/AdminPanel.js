@@ -33,7 +33,7 @@ const S = {
 export default function AdminPanel() {
   const [guests, setGuests] = useState([]);
   const [name, setName] = useState('');
-  const [baseUrl, setBaseUrl] = useState('https://wedding-inv-beryl.vercel.app');
+  const [baseUrl, setBaseUrl] = useState('https://wedding-inv-beryl.vercel.app/');
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [copied, setCopied] = useState(null);
   const [stats, setStats] = useState({});
