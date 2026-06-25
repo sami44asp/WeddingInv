@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Wedding Invitation System
 ## ዳንኤል & አማራ — Bilingual Wedding Invitation with QR Gate
 
@@ -151,3 +152,6 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ /index.html [L]
 ```
+=======
+# WeddingInv
+>>>>>>> e6b0f79414e6147b8a21cf061ed2691f99184b69
