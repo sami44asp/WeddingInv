@@ -1,67 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { useLang } from '../hooks/useLang';
-import LanguageToggle from './LanguageToggle';
-import { WEDDING } from '../data/weddingConfig';
 
-export default function NavBar() {
-  const { t, lang } = useLang();
+const styles = {
+  nav: {
+    position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '0 32px', height: '60px',
+    transition: 'background 0.4s ease, box-shadow 0.4s ease',
+  },
+  navScrolled: {
+    background: 'rgba(58,15,28,0.97)',
+    boxShadow: '0 1px 24px rgba(0,0,0,0.3)',
+  },
+  logo: {
+    fontFamily: "'Cinzel', serif",
+    fontSize: '15px',
+    letterSpacing: '3px',
+    color: '#C9A84C',
+    textDecoration: 'none',
+  },
+  links: {
+    display: 'flex', gap: '28px', listStyle: 'none',
+  },
+  link: {
+    fontFamily: "'Lato', sans-serif",
+    fontWeight: 300,
+    fontSize: '11px',
+    letterSpacing: '3px',
+    textTransform: 'uppercase',
+    color: '#E8D5A0',
+    textDecoration: 'none',
+    opacity: 0.85,
+    transition: 'opacity 0.2s',
+    cursor: 'pointer',
+  },
+};
+
+const NAV_ITEMS = [
+  { label: 'Our Story', id: 'story' },
+  { label: 'Details',   id: 'details' },
+  { label: 'Gallery',   id: 'gallery' },
+  { label: 'RSVP',      id: 'rsvp' },
+];
+
+export default function NavBar({ couple }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', h, { passive: true });
-    return () => window.removeEventListener('scroll', h);
+    const handler = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
   }, []);
 
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const names = lang === 'am'
-    ? `${WEDDING.brideNameAm} & ${WEDDING.groomNameAm}`
-    : `${WEDDING.brideName} & ${WEDDING.groomName}`;
-
   return (
-    <nav style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0 24px', height: '58px',
-      background: scrolled ? 'rgba(58,15,28,0.97)' : 'transparent',
-      boxShadow: scrolled ? '0 1px 24px rgba(0,0,0,0.3)' : 'none',
-      transition: 'background 0.4s, box-shadow 0.4s',
-    }}>
-      <span style={{
-        fontFamily: lang === 'am' ? "'Noto Serif Ethiopic', serif" : "'Cinzel', serif",
-        fontSize: lang === 'am' ? '14px' : '13px',
-        letterSpacing: lang === 'am' ? '0' : '3px',
-        color: '#C9A84C',
-      }}>
-        {names}
-      </span>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        {[['story', t('ourStory')], ['details', t('details')], ['gallery', t('gallery')], ['rsvp', t('rsvp')]].map(([id, label]) => (
-          <span
-            key={id}
-            onClick={() => scrollTo(id)}
-            className={lang === 'am' ? 'amharic' : ''}
-            style={{
-              fontFamily: lang === 'am' ? "'Noto Serif Ethiopic', serif" : "'Lato', sans-serif",
-              fontWeight: 300, fontSize: lang === 'am' ? '13px' : '11px',
-              letterSpacing: lang === 'am' ? 0 : '3px',
-              textTransform: lang === 'am' ? 'none' : 'uppercase',
-              color: '#E8D5A0', cursor: 'pointer', opacity: 0.85,
-              display: window.innerWidth < 600 ? 'none' : 'inline',
-              transition: 'opacity 0.2s',
-            }}
-            onMouseEnter={e => e.target.style.opacity = 1}
-            onMouseLeave={e => e.target.style.opacity = 0.85}
-          >
-            {label}
-          </span>
+    <nav style={{ ...styles.nav, ...(scrolled ? styles.navScrolled : {}) }}>
+      <span style={styles.logo}>{couple}</span>
+      <ul style={styles.links}>
+        {NAV_ITEMS.map(({ label, id }) => (
+          <li key={id} style={{ listStyle: 'none' }}>
+            <span
+              style={styles.link}
+              onClick={() => scrollTo(id)}
+              onMouseEnter={e => e.target.style.opacity = 1}
+              onMouseLeave={e => e.target.style.opacity = 0.85}
+            >
+              {label}
+            </span>
+          </li>
         ))}
-        <LanguageToggle />
-      </div>
+      </ul>
     </nav>
   );
 }

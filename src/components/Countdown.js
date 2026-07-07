@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import SectionHeader from './SectionHeader';
-import { useLang } from '../hooks/useLang';
-import { WEDDING } from '../data/weddingConfig';
 
-function pad(n){ return String(n).padStart(2,'0'); }
+function pad(n) { return String(n).padStart(2, '0'); }
 
-function getLeft() {
-  const diff = Math.max(0, new Date(WEDDING.ceremonyIso) - new Date());
+function getTimeLeft(targetISO, time) {
+  const target = new Date(`${targetISO}T${time}`);
+  const now    = new Date();
+  const diff   = Math.max(0, target - now);
   return {
     days:    Math.floor(diff / 86400000),
     hours:   Math.floor((diff % 86400000) / 3600000),
@@ -16,38 +16,94 @@ function getLeft() {
   };
 }
 
-export default function Countdown() {
-  const { t, lang } = useLang();
-  const isAm = lang === 'am';
-  const [time, setTime] = useState(getLeft);
+function Unit({ value, label }) {
+  return (
+    <div style={{ textAlign: 'center', minWidth: '72px' }}>
+      <span style={{
+        display: 'block',
+        fontFamily: "'Cinzel', serif",
+        fontSize: 'clamp(36px, 8vw, 58px)',
+        fontWeight: 500,
+        color: '#fff',
+        lineHeight: 1,
+        letterSpacing: '2px',
+      }}>
+        {pad(value)}
+      </span>
+      <span style={{
+        display: 'block',
+        fontFamily: "'Lato', sans-serif",
+        fontWeight: 300, fontSize: '10px',
+        letterSpacing: '4px', textTransform: 'uppercase',
+        color: '#C9A84C', marginTop: '8px',
+      }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function Colon() {
+  return (
+    <span style={{
+      fontFamily: "'Cinzel', serif",
+      fontSize: 'clamp(28px, 6vw, 44px)',
+      color: '#C9A84C',
+      alignSelf: 'flex-start',
+      paddingTop: '8px',
+      opacity: 0.7,
+    }}>
+      :
+    </span>
+  );
+}
+
+export default function Countdown({ targetDate, ceremonyTime }) {
+  const [time, setTime] = useState(() => getTimeLeft(targetDate, ceremonyTime));
 
   useEffect(() => {
     if (time.expired) return;
-    const id = setInterval(() => setTime(getLeft()), 1000);
+    const id = setInterval(() => setTime(getTimeLeft(targetDate, ceremonyTime)), 1000);
     return () => clearInterval(id);
-  }, [time.expired]);
+  }, [targetDate, ceremonyTime, time.expired]);
 
   return (
-    <section style={{ padding:'80px 24px', background:'linear-gradient(160deg,#3A0F1C 0%,#5C1A2E 100%)' }}>
-      <SectionHeader eyebrow={t('countdownEyebrow')} title={t('countdownTitle')} italic={t('countdownItalic')} light />
+    <section style={{
+      padding: '80px 24px',
+      background: 'linear-gradient(160deg, #3A0F1C 0%, #5C1A2E 100%)',
+    }}>
+      <SectionHeader
+        eyebrow="The Big Day"
+        title="Counting down to"
+        italic="forever"
+        light
+      />
+
       {time.expired ? (
-        <p className={isAm?'amharic':''} style={{ textAlign:'center',fontFamily:"'Cormorant Garamond',serif",fontStyle:'italic',fontSize:'28px',color:'#E8D5A0' }}>{t('todayMsg')}</p>
+        <p style={{
+          textAlign: 'center',
+          fontFamily: "'Cormorant Garamond', serif",
+          fontStyle: 'italic',
+          fontSize: '28px',
+          color: '#E8D5A0',
+        }}>
+          Today is the day! 🎉
+        </p>
       ) : (
-        <div style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:'14px',flexWrap:'wrap' }}>
-          {[
-            [time.days,    t('days')],
-            [time.hours,   t('hours')],
-            [time.minutes, t('minutes')],
-            [time.seconds, t('seconds')],
-          ].map(([val, label], i) => (
-            <React.Fragment key={label}>
-              {i > 0 && <span style={{ fontFamily:"'Cinzel',serif",fontSize:'clamp(26px,5vw,42px)',color:'#C9A84C',opacity:0.6,paddingBottom:'22px' }}>:</span>}
-              <div style={{ textAlign:'center',minWidth:'68px' }}>
-                <span style={{ display:'block',fontFamily:"'Cinzel',serif",fontSize:'clamp(34px,8vw,56px)',fontWeight:500,color:'#fff',lineHeight:1,letterSpacing:'2px' }}>{pad(val)}</span>
-                <span className={isAm?'amharic':''} style={{ display:'block',fontFamily:isAm?"'Noto Serif Ethiopic',serif":"'Lato',sans-serif",fontWeight:300,fontSize:'10px',letterSpacing:isAm?0:'4px',textTransform:isAm?'none':'uppercase',color:'#C9A84C',marginTop:'8px' }}>{label}</span>
-              </div>
-            </React.Fragment>
-          ))}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '16px',
+          flexWrap: 'wrap',
+        }}>
+          <Unit value={time.days}    label="Days"    />
+          <Colon />
+          <Unit value={time.hours}   label="Hours"   />
+          <Colon />
+          <Unit value={time.minutes} label="Minutes" />
+          <Colon />
+          <Unit value={time.seconds} label="Seconds" />
         </div>
       )}
     </section>
